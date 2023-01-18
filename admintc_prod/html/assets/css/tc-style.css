@@ -1,0 +1,185 @@
+/*!
+ * Start Bootstrap - SB Admin (http://startbootstrap.com/)
+ * Copyright 2013-2016 Start Bootstrap
+ * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
+ */
+
+/*!
+ *
+ * Basic Modifications
+ *
+ */
+
+/* Remove input number arrows */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  /* display: none; <- Crashes Chrome on hover */
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.tc-top-30 {
+  margin-top: 30px;
+}
+
+.tc-top-20 {
+  margin-top: 20px;
+}
+
+.tc-top-10 {
+  margin-top: 10px;
+}
+
+.tc-pad-15 {
+  padding: 15px;
+}
+
+.tc-alert {
+  padding: 5px 10px;
+  margin-bottom: 10px;
+}
+
+.tc-sidepad-15 {
+  padding: 0 15px;
+}
+
+.tc-marginside-15 {
+  margin: 0 15px;
+}
+
+.tc-bot-20 {
+  margin-bottom: 20px;
+}
+
+.tc-left-25 {
+  margin-left: 25px;
+}
+
+.tc-left-35 {
+  margin-left: 35px;
+}
+
+.tc-left-15 {
+  margin-left: 15px;
+}
+
+.tc-left-0 {
+  margin-left: 0 !important;
+}
+
+.tc-right-25 {
+  margin-right: 20px;
+}
+
+.tc-bold {
+  font-weight: bold;
+}
+
+.tc-right {
+  float: right;
+}
+
+.tc-left {
+  float: left;
+}
+
+.tc-top-0 {
+  margin-top: 0;
+}
+
+.tc-bot-0 {
+  margin-bottom: 0;
+}
+
+.tc-center {
+  text-align: center;
+}
+
+.add-cursor {
+  cursor: pointer;
+}
+
+.disable-white {
+  background-color: white !important;
+}
+
+.tc-y-center {
+  vertical-align: middle !important;
+}
+
+.tc-no-boarder {
+  border-top: 0px !important;
+}
+
+/*!
+ *
+ * Internal Styles
+ *
+ */
+
+/* Top Navigation */
+
+.tc-logo {
+  padding: 10px 15px 15px 35px;
+  width: 225px;
+}
+
+.tc-page-title {
+  margin: 12px;
+}
+
+.tc-nav-boarder {
+  border-color: #222;
+}
+
+.tc-button-green {
+  color: darkgreen;
+}
+
+.tc-font-black {
+  color: black;
+}
+
+.tc-font-black:hover {
+  color: black;
+}
+
+.tc-font-blue {
+  color: #31708f;
+}
+
+.tc-font-blue:hover {
+  color: #31708f;
+}
+
+.google-cite {
+  font-style: normal;
+  vertical-align: text-bottom;
+}
+
+.google-h3 {
+  padding-top: 4px;
+  margin: 0 0 3px 0;
+  color: #1a0dab;
+}
+
+.google-span {
+}
+
+.google-i {
+  margin: -5px 0px 0 5px;
+  vertical-align: text-top;
+}
+
+/*!
+ *
+ * External Styles
+ *
+ */
+
+/* Login Page */
+.form-signin {
+  max-width: 445px;
+  padding: 15px;
+  margin: 0 auto;
+}
