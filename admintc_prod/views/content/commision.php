@@ -29,6 +29,7 @@
         <select class="form-control tc-left-15" id="year" ng-model="commision.year">
           <option value="2021">2021</option>
           <option value="2022">2022</option>
+          <option value="2023">2023</option>
         </select>
       </div>
       <button type="submit" class="btn btn-primary" ng-click="getCommision()">Buscar</button>

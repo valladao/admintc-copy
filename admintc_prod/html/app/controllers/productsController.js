@@ -168,6 +168,8 @@ app.controller('productsController', function($scope,$http, getTerraCotta){
 				$scope.product.idVar = $scope.productTable[i].idVar;
 				$scope.product.idInventory = $scope.productTable[i].idInventory;
 				$scope.product.barcode = $scope.productTable[i].barcode;
+				$scope.product.vendor = $scope.productTable[i].vendor;
+				$scope.product.idOptions = $scope.productTable[i].idOptions;
 				$scope.alertNow = false;
 				getOrigin();
 				getVariants($scope.productTable[i].idProduct);
@@ -213,6 +215,8 @@ app.controller('productsController', function($scope,$http, getTerraCotta){
 		entry['idInventory'] = $scope.product.idInventory;
 		entry['barcode'] = $scope.product.barcode;
 		entry['stockQty'] = $scope.product.total;
+		entry['vendor'] = $scope.product.vendor;
+		entry['idOptions'] = $scope.product.idOptions;
 
 		newEntry = JSON.stringify(entry);
 	

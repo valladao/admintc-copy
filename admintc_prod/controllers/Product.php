@@ -15,7 +15,7 @@ class Product extends CI_Controller {
 
 		parent::__construct();
 
-		$this->is_logged_in();
+		// $this->is_logged_in();
 		$this->load->model('Product_db');
 		$this->load->model('Other_db');
 
