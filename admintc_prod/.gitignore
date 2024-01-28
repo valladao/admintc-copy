@@ -1,3 +1,5 @@
 # Ignore Environment Variables
 .env
 
+# Ignore SFTP Files
+.vscode/
