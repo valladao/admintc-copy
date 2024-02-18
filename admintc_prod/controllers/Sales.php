@@ -133,16 +133,12 @@ class Sales extends CI_Controller {
 			$year1 = (int)date('Y');
 		}
 
-		if ($month1 == 1 ) {
-			$month2 = 12;
+		if ($month1 == 1) {
+				$month2 = 12; // December of the previous year
+				$year2 = $year1 - 1;
 		} else {
-			$month2 = (int)date('m') - 1;
-		}
-
-		if ($month1 == 1 ) {
-			$year2 = (int)date('Y') - 1;
-		} else {
-			$year2 = (int)date('Y');
+				$month2 = $month1 - 1; // Previous month
+				$year2 = $year1;
 		}
 
 		// Change username small caps
