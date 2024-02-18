@@ -206,6 +206,8 @@ class Sales extends CI_Controller {
 			}
 		}
 
+		$query['sales1'] = $sales1;
+		$query['commission_rate1'] = $commission_rate1;
 		$query['commission1'] = $sales1 * $commission_rate1;
 		$query['commissionMsg1'] = $commission_msg1;
 
@@ -275,6 +277,8 @@ class Sales extends CI_Controller {
 				}
 			}
 
+			$query['sales2'] = $sales2;
+			$query['commission_rate2'] = $commission_rate2;
 			$query['commission2'] = $sales2 * $commission_rate2;
 			$query['commissionMsg2'] = $commission_msg2;
 
