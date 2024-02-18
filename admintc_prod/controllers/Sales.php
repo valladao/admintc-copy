@@ -269,10 +269,10 @@ class Sales extends CI_Controller {
 				} elseif ($sales_store2 / $store2 >= 1.2 && $sales_terracotta2 / $business2 >= 0.9) {
 					$commission_rate2 = 0.004;
 					$commission_msg2 = "Meta Atingida!";
-				} elseif ($sales_store2 / $store2 >= 0.9 && $sales_terracotta2 / $business2= 1.2) {
+				} elseif ($sales_store2 / $store2 >= 0.9 && $sales_terracotta2 / $business2 >= 1.2) {
 					$commission_rate2 = 0.004;
 					$commission_msg2 = "Meta Atingida!";
-				} elseif ($sales_store2 / $store2 >= 0.9 && $sales_terracotta2 / $business2= 0.9) {
+				} elseif ($sales_store2 / $store2 >= 0.9 && $sales_terracotta2 / $business2 >= 0.9) {
 					$commission_msg2 = "Meta Atingida!";
 				}
 			}
