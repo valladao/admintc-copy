@@ -120,8 +120,8 @@ class Sales extends CI_Controller {
 	{
 		// Used in page "seller_rprt"
 		// Set base commission
-		$commission_rate1 = 0.003;
-		$commission_rate2 = 0.003;
+		$commission_rate1 = 0.006;
+		$commission_rate2 = 0.006;
 		$commission_msg1 = "Sem comissão configurada.";
 		$commission_msg2 = "Sem comissão configurada.";
 
@@ -184,22 +184,22 @@ class Sales extends CI_Controller {
 
 		if ($sales1 / $personal1 >= 1) {
 			if ($sales_store1 / $store1 >= 1.5 && $sales_terracotta1 / $business1 >= 1.5) {
-				$commission_rate1 = 0.007;
+				$commission_rate1 = 0.015;
 				$commission_msg1 = "Hipermeta Atingida!";
 			} elseif ($sales_store1 / $store1 >= 1.5 && $sales_terracotta1 / $business1 >= 1.2) {
-				$commission_rate1 = 0.006;
+				$commission_rate1 = 0.012;
 				$commission_msg1 = "Supermeta Atingida!";
 			} elseif ($sales_store1 / $store1 >= 1.2 && $sales_terracotta1 / $business1 >= 1.5) {
-				$commission_rate1 = 0.006;
+				$commission_rate1 = 0.012;
 				$commission_msg1 = "Supermeta Atingida!";
 			} elseif ($sales_store1 / $store1 >= 1.2 && $sales_terracotta1 / $business1 >= 1.2) {
-				$commission_rate1 = 0.005;
+				$commission_rate1 = 0.01;
 				$commission_msg1 = "Supermeta Atingida!";
 			} elseif ($sales_store1 / $store1 >= 1.2 && $sales_terracotta1 / $business1 >= 0.9) {
-				$commission_rate1 = 0.004;
+				$commission_rate1 = 0.008;
 				$commission_msg1 = "Meta Atingida!";
 			} elseif ($sales_store1 / $store1 >= 0.9 && $sales_terracotta1 / $business1 >= 1.2) {
-				$commission_rate1 = 0.004;
+				$commission_rate1 = 0.008;
 				$commission_msg1 = "Meta Atingida!";
 			} elseif ($sales_store1 / $store1 >= 0.9 && $sales_terracotta1 / $business1 >= 0.9) {
 				$commission_msg1 = "Meta Atingida!";
@@ -255,22 +255,22 @@ class Sales extends CI_Controller {
 
 			if ($sales2 / $personal2 >= 1) {
 				if ($sales_store2 / $store2 >= 1.5 && $sales_terracotta2 / $business2 >= 1.5) {
-					$commission_rate2 = 0.007;
+					$commission_rate2 = 0.015;
 					$commission_msg2 = "Hipermeta Atingida!";
 				} elseif ($sales_store2 / $store2 >= 1.5 && $sales_terracotta2 / $business2 >= 1.2) {
-					$commission_rate2 = 0.006;
+					$commission_rate2 = 0.012;
 					$commission_msg2 = "Supermeta Atingida!";
 				} elseif ($sales_store2 / $store2 >= 1.2 && $sales_terracotta2 / $business2 >= 1.5) {
-					$commission_rate2 = 0.006;
+					$commission_rate2 = 0.012;
 					$commission_msg2 = "Supermeta Atingida!";
 				} elseif ($sales_store2 / $store2 >= 1.2 && $sales_terracotta2 / $business2 >= 1.2) {
-					$commission_rate2 = 0.005;
+					$commission_rate2 = 0.01;
 					$commission_msg2 = "Supermeta Atingida!";
 				} elseif ($sales_store2 / $store2 >= 1.2 && $sales_terracotta2 / $business2 >= 0.9) {
-					$commission_rate2 = 0.004;
+					$commission_rate2 = 0.008;
 					$commission_msg2 = "Meta Atingida!";
 				} elseif ($sales_store2 / $store2 >= 0.9 && $sales_terracotta2 / $business2 >= 1.2) {
-					$commission_rate2 = 0.004;
+					$commission_rate2 = 0.008;
 					$commission_msg2 = "Meta Atingida!";
 				} elseif ($sales_store2 / $store2 >= 0.9 && $sales_terracotta2 / $business2 >= 0.9) {
 					$commission_msg2 = "Meta Atingida!";
