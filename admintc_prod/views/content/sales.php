@@ -3,18 +3,18 @@
 	<form>
 
 		<div class="col-sm-4">
-		
+
 			<div class="form-group">
 				<label>Buscar:</label>
 				<input class="form-control input-sm" type="text" placeholder="Produto, SKU ou Cód. de Barras" ng-model="searchFilter" ng-change="clearPriority()">
 				<input class="form-control" type="hidden" name="store" value="<?php echo ucfirst($this->session->userdata('store')); ?>" disabled>
-				<input class="form-control" type="hidden" name="username" value="<?php echo ucfirst($this->session->userdata('firstName')); ?>" disabled>
+				<input class="form-control" type="hidden" name="username" value="<?php echo ucfirst($this->session->userdata('username')); ?>" disabled>
 			</div>
-			
+
 		</div>
-		
+
 		<div class="col-sm-3">
-		
+
 			<div class="form-group">
 				<label>Fornecedor:</label>
 				<select class="form-control input-sm" ng-model="search.supplier">
@@ -22,11 +22,11 @@
 					<option ng-repeat="option in suppliers" value="{{option.supplier}}">{{option.supplier}}</option>
 				</select>
 			</div>
-		
+
 		</div>
-		
+
 		<div class="col-sm-3">
-		
+
 			<div class="form-group">
 				<label>Tipo:</label>
 				<select class="form-control input-sm" ng-model="search.type">
@@ -34,7 +34,7 @@
 					<option ng-repeat="option in types" value="{{option.type}}">{{option.type}}</option>
 				</select>
 			</div>
-		
+
 		</div>
 
 		<div class="col-sm-2">
@@ -45,7 +45,7 @@
 					<button class="btn btn-primary form-control" ng-click="cleanSearch()">Limpar</button>
 				</div>
 			</div>
-			
+
 		</div>
 
 	</form>
@@ -61,7 +61,7 @@
 			<div class="tc-pad-15">
 
 				<table class="table table-bordered table-condensed">
-				
+
 					<thead>
 						<tr>
 							<th>Foto</th>
@@ -75,11 +75,11 @@
 							<th>Incluir</th>
 						</tr>
 					</thead>
-				
+
 					<tbody>
 						<tr ng-repeat="data in (filteredItems = (
-						productTable | 
-						filter: search | 
+						productTable |
+						filter: search |
 						filter: ignoreAccents
 						)).slice(
 							((currentPage-1)*3), ((currentPage)*3)
@@ -102,7 +102,7 @@
 							</td>
 						</tr>
 					</tbody>
-				
+
 				</table>
 
 				<div class="row">
@@ -123,7 +123,7 @@
 				</div>
 
 				<table class="table table-bordered table-condensed">
-				
+
 					<thead>
 						<tr>
 							<th style="text-align: center;">#</th>
@@ -135,7 +135,7 @@
 							<th></th>
 						</tr>
 					</thead>
-				
+
 					<tbody>
 						<tr ng-repeat="data in salesTable">
 							<td style="text-align: center;">{{data.listCount + 1 }}</td>
@@ -179,7 +179,7 @@
 							<td></td>
 						</tr>
 					</tbody>
-				
+
 				</table>
 
 
@@ -189,7 +189,7 @@
 					<div class="alert alert-danger col-sm-7" role="alert" ng-if="alertNow1">{{alertMsg1}}</div>
 
 					<button class="btn btn-success btn-lg tc-right col-sm-3" ng-click="closeList(sale.total)">Finalizar Venda >></button>
-				
+
 				</div>
 
 			</div>
@@ -203,13 +203,13 @@
 				<div class="col-sm-8">
 
 					<div class="tc-pad-15">
-		
+
 						<h4>Cartão</h4>
-		
+
 						<div class="row">
-		
+
 							<div class="col-sm-12">
-		
+
 								<table class="table table-bordered table-condensed">
 									<thead>
 										<tr>
@@ -270,20 +270,20 @@
 												</select>
 											</td>
 											<td><button class="btn btn-success btn-sm" ng-click="addPay('card')"><i class="fa fa-fw fa-plus"></i></button></td>
-										</tr>						
+										</tr>
 									</tbody>
 								</table>
-		
+
 							</div>
-		
+
 						</div>
-		
+
 						<h4>Dinheiro</h4>
-		
+
 						<div class="row">
-		
+
 							<div class="col-sm-8">
-							
+
 								<table class="table table-bordered table-condensed col-sm-6">
 									<thead>
 										<tr>
@@ -301,20 +301,20 @@
 												</div>
 											</td>
 											<td><button class="btn btn-success btn-sm" ng-click="addPay('money')"><i class="fa fa-fw fa-plus"></i></button></td>
-										</tr>						
+										</tr>
 									</tbody>
 								</table>
-		
+
 							</div>
-		
+
 						</div>
-		
+
 						<h4>Cheque	<button class="btn btn-default btn-xs" ng-click="showMe('check')"><i class="fa fa-fw fa-folder-open"></i></button></h4>
-		
+
 						<div class="row" ng-show="showCheck">
-		
+
 							<div class="col-sm-12">
-							
+
 								<table class="table table-bordered table-condensed col-sm-6">
 									<thead>
 										<tr>
@@ -339,20 +339,20 @@
 												</div>
 											</td>
 											<td><button class="btn btn-success btn-sm" ng-click="addPay('check')"><i class="fa fa-fw fa-plus"></i></button></td>
-										</tr>						
+										</tr>
 									</tbody>
 								</table>
-		
+
 							</div>
-		
+
 						</div>
-		
+
 						<h4>Depósito	<button class="btn btn-default btn-xs" ng-click="showMe('deposit')"><i class="fa fa-fw fa-folder-open"></i></button></h4>
-		
+
 						<div class="row" ng-show="showDeposit">
-		
+
 							<div class="col-sm-12">
-		
+
 								<table class="table table-bordered table-condensed">
 									<thead>
 										<tr>
@@ -384,20 +384,20 @@
 												</div>
 											</td>
 											<td><button class="btn btn-success btn-sm" ng-click="addPay('deposit')"><i class="fa fa-fw fa-plus"></i></button></td>
-										</tr>						
+										</tr>
 									</tbody>
 								</table>
-		
+
 							</div>
-		
+
 						</div>
-		
+
 						<h4>Boleto	<button class="btn btn-default btn-xs" ng-click="showMe('bill')"><i class="fa fa-fw fa-folder-open"></i></button></h4>
-		
+
 						<div class="row" ng-show="showBill">
-		
+
 							<div class="col-sm-12">
-							
+
 								<table class="table table-bordered table-condensed col-sm-6">
 									<thead>
 										<tr>
@@ -429,20 +429,20 @@
 												<option>Loja</option>
 											</select></td>
 											<td><button class="btn btn-success btn-sm" ng-click="addPay('bill')"><i class="fa fa-fw fa-plus"></i></button></td>
-										</tr>						
+										</tr>
 									</tbody>
 								</table>
-		
+
 							</div>
-		
+
 						</div>
-		
+
 						<h4>À cobrar	<button class="btn btn-default btn-xs" ng-click="showMe('pending')"><i class="fa fa-fw fa-folder-open"></i></button></h4>
-		
+
 						<div class="row" ng-show="showPending">
-		
+
 							<div class="col-sm-12">
-							
+
 								<table class="table table-bordered table-condensed col-sm-6">
 									<thead>
 										<tr>
@@ -472,17 +472,17 @@
 										</tr>
 									</tbody>
 								</table>
-		
+
 							</div>
-		
+
 						</div>
 
 						<h4>Frete	<button class="btn btn-default btn-xs" ng-click="showMe('freight')"><i class="fa fa-fw fa-folder-open"></i></button></h4>
 
 						<div class="row" ng-show="showFreight">
-		
+
 							<div class="col-sm-8">
-							
+
 								<table class="table table-bordered table-condensed col-sm-6">
 									<thead>
 										<tr>
@@ -502,7 +502,7 @@
 										</tr>
 									</tbody>
 								</table>
-		
+
 							</div>
 
 						</div>
@@ -510,9 +510,9 @@
 						<h4  ng-hide="disableReview">Troca	<button class="btn btn-default btn-xs" ng-click="showMe('change')"><i class="fa fa-fw fa-folder-open"></i></button></h4>
 
 						<div class="row" ng-show="showChange">
-		
+
 							<div class="col-sm-12">
-							
+
 								<table class="table table-bordered table-condensed col-sm-6">
 									<thead>
 										<tr>
@@ -541,11 +541,11 @@
 										</tr>
 									</tbody>
 								</table>
-		
+
 							</div>
-		
+
 						</div>
-		
+
 					</div>
 
 				</div>
@@ -596,9 +596,9 @@
 				</div>
 
 			</div>
-	
+
 		</uib-tab>
-	
+
 		<uib-tab index="2" heading="Fechar" disable="disableReview">
 
 			<div class="row tc-sidepad-15">
@@ -624,13 +624,13 @@
 						</div>
 
 					</p>
-	
+
 					<p>Vendedor: <?php
 						echo $this->session->userdata('firstName');
 					?>
 						<button type="button" class="btn btn-link" ng-click="changeSalesman = !changeSalesman" ng-init="changeSalesman=false">modificar</button>
 
-						<div class="row tc-sidepad-15" ng-show="changeSalesman"><div class="col-sm-4">							
+						<div class="row tc-sidepad-15" ng-show="changeSalesman"><div class="col-sm-4">
 							<select class="form-control input-sm" ng-model="sale.salesman">
 								<option ng-repeat="option in salesman" value="{{option.username}}">{{option.firstName}}</option>
 							</select>
@@ -639,9 +639,9 @@
 					</p>
 
 					<h4 class="tc-top-20">Venda e Pagamento</h4>
-	
+
 					<table class="table table-bordered table-condensed">
-					
+
 						<thead>
 							<tr>
 								<th style="text-align: center;">#</th>
@@ -652,7 +652,7 @@
 								<th>Subtotal</th>
 							</tr>
 						</thead>
-					
+
 						<tbody>
 							<tr ng-repeat="data in salesTable">
 								<td style="text-align: center;">{{data.listCount + 1 }}</td>
@@ -681,7 +681,7 @@
 								<td class="tc-bold">R$ {{sale.total | number:2}}</td>
 							</tr>
 						</tbody>
-					
+
 					</table>
 
 					<div class="row" ng-show="haveFreight"><div class="col-sm-4 col-sm-offset-8">
@@ -732,7 +732,7 @@
 					</table>
 
 					<div class="row" ng-hide="true">
-	
+
 						<div class="alert alert-warning tc-right col-sm-6">
 							Essa venda tem desconto o parcelamento fora do permitido. <span class="tc-bold">Necessário aprovação da GERÊNCIA.</span>. Prossiga caso já tenha sido aprovado.
 						</div>
