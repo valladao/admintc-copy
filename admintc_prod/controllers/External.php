@@ -368,4 +368,63 @@ class External extends CI_Controller {
 
 	}
 
+	/**
+	 * Check if Shopify image is the same as database image for a given SKU
+	 *
+	 * @param string $sku The SKU to check
+	 * @return void
+	 */
+	public function check_image($sku)
+	{
+		// Load required models
+		$this->load->model('Product_db');
+		$this->load->model('Shopify_rest');
+
+		// Get product information from database
+		$db_product = $this->Product_db->get_product_by_sku($sku);
+
+		if (!$db_product) {
+			echo "Product with SKU {$sku} not found in database.<br>";
+			return;
+		}
+
+		$db_image_url = $db_product->picture;
+		$idShopify = $db_product->idShopify;
+
+		// Get product information from Shopify
+		$shopify_product = $this->Shopify_rest->get_product($idShopify);
+		$shopify_data = json_decode($shopify_product, true);
+
+		if (!isset($shopify_data['product']) || !isset($shopify_data['product']['image']['src'])) {
+			echo "Product with SKU {$sku} not found in Shopify or has no image.<br>";
+			return;
+		}
+
+		$shopify_image_url = $shopify_data['product']['image']['src'];
+
+		// Display both URLs
+		echo "<h2>Image URLs for SKU: {$sku}</h2>";
+		echo "<p><strong>Database Image URL:</strong> {$db_image_url}</p>";
+		echo "<p><strong>Shopify Image URL:</strong> {$shopify_image_url}</p>";
+
+		// Compare URLs
+		if ($db_image_url === $shopify_image_url) {
+			echo "<p style='color: green;'>✓ The image URLs match.</p>";
+		} else {
+			echo "<p style='color: red;'>✗ The image URLs do not match.</p>";
+
+			// Show images side by side
+			echo "<div style='display: flex; margin-top: 20px;'>";
+			echo "<div style='margin-right: 20px;'>";
+			echo "<h3>Database Image:</h3>";
+			echo "<img src='{$db_image_url}' style='max-width: 300px; max-height: 300px;' />";
+			echo "</div>";
+			echo "<div>";
+			echo "<h3>Shopify Image:</h3>";
+			echo "<img src='{$shopify_image_url}' style='max-width: 300px; max-height: 300px;' />";
+			echo "</div>";
+			echo "</div>";
+		}
+	}
+
 }
