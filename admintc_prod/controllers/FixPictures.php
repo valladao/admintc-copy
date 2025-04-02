@@ -23,7 +23,7 @@ class FixPictures extends CI_Controller {
      * @param int $idShopify The Shopify ID of the product
      * @return bool True if the image was updated, false otherwise
      */
-    public function check_image($idShopify)
+    private function check_image($idShopify)
     {
         // Get the current image URL from the database
         $this->db->select('picture, idProduct, title');
@@ -31,7 +31,6 @@ class FixPictures extends CI_Controller {
         $query = $this->db->get('products');
 
         if ($query->num_rows() == 0) {
-            echo "Product with Shopify ID {$idShopify} not found in database.<br>";
             return false;
         }
 
@@ -44,7 +43,7 @@ class FixPictures extends CI_Controller {
 
         // Check if we got a valid response with an image
         if (!isset($array_result['product']) || !isset($array_result['product']['image']) || !isset($array_result['product']['image']['src'])) {
-            echo "Could not get image URL from Shopify for product ID {$idShopify}.<br>";
+            // Don't log this as it's not considered an error
             return false;
         }
 
@@ -61,14 +60,10 @@ class FixPictures extends CI_Controller {
             $log_message = "Updated image URL for product ID {$product->idProduct} (Shopify ID: {$idShopify}, Title: {$product->title}). Old URL: {$db_picture}, New URL: {$shopify_picture}";
             $this->External_db->externalLog('1', $log_message);
 
-            echo "Updated image URL for product ID {$idShopify}.<br>";
-            echo "Old URL: {$db_picture}<br>";
-            echo "New URL: {$shopify_picture}<br><br>";
-
             return true;
         }
 
-        echo "Image URL for product ID {$idShopify} is already correct.<br>";
+        // Don't log when the image is already correct
         return false;
     }
 
@@ -83,6 +78,7 @@ class FixPictures extends CI_Controller {
 
         $counter = 0;
         $updated = 0;
+        $skipped = 0;
 
         // Get all products with Shopify IDs
         $this->db->select('idShopify');
@@ -94,34 +90,33 @@ class FixPictures extends CI_Controller {
         // Log the start of the process
         $this->External_db->externalLog('0', "Starting fix_all_images process. Found {$total} products to check.");
 
-        echo "<h1>Fixing Product Image URLs</h1>";
-        echo "<p>Found {$total} products with Shopify IDs to check.</p>";
+        echo "Starting fix_all_images process. Found {$total} products to check.<br>";
 
         // Process each product
         foreach ($query->result() as $row) {
             $counter++;
 
-            // Show progress
-            echo "<p>Processing product {$counter} of {$total} (Shopify ID: {$row->idShopify})...</p>";
-
             // Check and fix the image URL
             if ($this->check_image($row->idShopify)) {
                 $updated++;
+            } else {
+                $skipped++;
             }
 
             // Add a small delay to avoid hitting Shopify API rate limits
             usleep(500000); // 0.5 seconds
 
-            // Flush output to show progress in real-time
-            flush();
+            // Log progress every 50 products
+            if ($counter % 50 == 0) {
+                $this->External_db->externalLog('0', "Progress: Processed {$counter} of {$total} products. Updated: {$updated}, Skipped: {$skipped}");
+                echo "Progress: Processed {$counter} of {$total} products. Updated: {$updated}, Skipped: {$skipped}<br>";
+            }
         }
 
         // Log the completion of the process
-        $this->External_db->externalLog('0', "Completed fix_all_images process. Checked {$counter} products, updated {$updated} products.");
+        $this->External_db->externalLog('0', "Completed fix_all_images process. Checked {$counter} products, updated {$updated}, skipped {$skipped}.");
 
-        echo "<h2>Process completed</h2>";
-        echo "<p>Total products checked: {$counter}</p>";
-        echo "<p>Products updated: {$updated}</p>";
+        echo "Process completed. Checked {$counter} products, updated {$updated}, skipped {$skipped}.<br>";
     }
 
     /**
@@ -138,6 +133,7 @@ class FixPictures extends CI_Controller {
 
         $counter = 0;
         $updated = 0;
+        $skipped = 0;
 
         // Get products with Shopify IDs in batches
         $this->db->select('idShopify');
@@ -154,41 +150,37 @@ class FixPictures extends CI_Controller {
         // Log the start of the batch process
         $this->External_db->externalLog('0', "Starting fix_batch process. Batch: {$offset} to " . ($offset + $batch_size) . " of {$total} products.");
 
-        echo "<h1>Fixing Product Image URLs (Batch)</h1>";
-        echo "<p>Processing batch: {$offset} to " . ($offset + $batch_size) . " of {$total} products</p>";
+        echo "Starting fix_batch process. Batch: {$offset} to " . ($offset + $batch_size) . " of {$total} products.<br>";
 
         // Process each product in the batch
         foreach ($query->result() as $row) {
             $counter++;
 
-            // Show progress
-            echo "<p>Processing product {$counter} of {$batch_size} (Shopify ID: {$row->idShopify})...</p>";
-
             // Check and fix the image URL
             if ($this->check_image($row->idShopify)) {
                 $updated++;
+            } else {
+                $skipped++;
             }
 
             // Add a small delay to avoid hitting Shopify API rate limits
             usleep(500000); // 0.5 seconds
-
-            // Flush output to show progress in real-time
-            flush();
         }
 
         // Log the completion of the batch process
-        $this->External_db->externalLog('0', "Completed fix_batch process. Batch: {$offset} to " . ($offset + $batch_size) . ". Checked {$counter} products, updated {$updated} products.");
+        $this->External_db->externalLog('0', "Completed fix_batch process. Batch: {$offset} to " . ($offset + $batch_size) . ". Checked {$counter} products, updated {$updated}, skipped {$skipped}.");
 
-        echo "<h2>Batch process completed</h2>";
-        echo "<p>Products checked in this batch: {$counter}</p>";
-        echo "<p>Products updated in this batch: {$updated}</p>";
+        echo "Batch completed. Checked {$counter} products, updated {$updated}, skipped {$skipped}.<br>";
+
+        // Calculate next batch
+        $next_offset = $offset + $limit;
+        $next_batch_url = site_url("fixPictures/fix_batch/{$next_offset}/{$limit}");
 
         // Show link to next batch if there are more products
         if ($offset + $limit < $total) {
-            $next_offset = $offset + $limit;
-            echo "<p><a href='" . site_url("fixPictures/fix_batch/{$next_offset}/{$limit}") . "'>Process next batch</a></p>";
+            echo "<a href='{$next_batch_url}'>Process next batch ({$next_offset} to " . ($next_offset + $limit) . ")</a>";
         } else {
-            echo "<p>All products have been processed.</p>";
+            echo "All batches completed.";
         }
     }
 }
