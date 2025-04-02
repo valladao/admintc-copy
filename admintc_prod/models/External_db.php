@@ -321,4 +321,26 @@ class External_db extends CI_Model {
 
 	}
 
+	/**
+	 * Get product information by SKU
+	 *
+	 * @param string $sku The SKU to look up
+	 * @return object|null Product object or null if not found
+	 */
+	public function get_product_by_sku($sku)
+	{
+		// Join products and variants tables to get all product information
+		$this->db->select('products.*, variants.sku');
+		$this->db->from('products');
+		$this->db->join('variants', 'products.idProduct = variants.idProduct');
+		$this->db->where('variants.sku', $sku);
+		$query = $this->db->get();
+
+		if ($query->num_rows() > 0) {
+			return $query->row();
+		} else {
+			return null;
+		}
+	}
+
 }

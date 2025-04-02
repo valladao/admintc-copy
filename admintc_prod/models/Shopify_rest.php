@@ -70,7 +70,7 @@ class Shopify_rest extends CI_Model {
 	//PUT /admin/variants/#{id}.json
 	public function updt_qty_new($idInventory,$qty)
 	{
-		
+
 		$url_base = "https://".$this->key.":".$this->password."@".$this->hostname;
 
 		//$data_string = '{"variant":{"id":"'.$idVar.'","inventory_quantity":"'.$qty.'"}}';
@@ -156,7 +156,7 @@ class Shopify_rest extends CI_Model {
 		    'Content-Type: application/json',
 		    'Content-Length: ' . strlen($data_string))
 		);
- 
+
 		return curl_exec($ch);
 
 	}
@@ -180,7 +180,7 @@ class Shopify_rest extends CI_Model {
 			'Content-Type: application/json',
 			'Content-Length: ' . strlen($data_string))
 		);
- 
+
 		curl_exec($ch);
 
 	}
@@ -188,7 +188,7 @@ class Shopify_rest extends CI_Model {
 	//PUT /admin/variants/#{id}.json
 	public function vput($editInfo)
 	{
-		
+
 		$url_base = "https://".$this->key.":".$this->password."@".$this->hostname;
 
 		//Old inventory fields
@@ -217,7 +217,7 @@ class Shopify_rest extends CI_Model {
 	//GET /admin/products/632910392.json
 	public function get_product($idShopify)
 	{
-		
+
 		$url_base = "https://".$this->key.":".$this->password."@".$this->hostname;
 
 		$url = $url_base."/admin/products/".$idShopify.".json";
@@ -237,7 +237,7 @@ class Shopify_rest extends CI_Model {
 	public function get_inventoryLevel($idInventory)
 	{
 		//https://{shop}.myshopify.com/admin/api/2021-01/inventory_levels.json?inventory_item_ids={inventory_item_id}
-		
+
 		$url_base = "https://".$this->key.":".$this->password."@".$this->hostname;
 
 		$url = $url_base."/admin/api/2021-01/inventory_levels.json?inventory_item_ids=".$idInventory;

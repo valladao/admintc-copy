@@ -376,12 +376,11 @@ class External extends CI_Controller {
 	 */
 	public function check_image($sku)
 	{
-		// Load required models
-		$this->load->model('Product_db');
+		// Load Shopify_rest model
 		$this->load->model('Shopify_rest');
 
 		// Get product information from database
-		$db_product = $this->Product_db->get_product_by_sku($sku);
+		$db_product = $this->External_db->get_product_by_sku($sku);
 
 		if (!$db_product) {
 			echo "Product with SKU {$sku} not found in database.<br>";
@@ -391,8 +390,11 @@ class External extends CI_Controller {
 		$db_image_url = $db_product->picture;
 		$idShopify = $db_product->idShopify;
 
-		// Get product information from Shopify
-		$shopify_product = $this->Shopify_rest->get_product($idShopify);
+		// Get product information from Shopify using output buffering to capture the output
+		ob_start();
+		$this->Shopify_rest->get_product($idShopify);
+		$shopify_product = ob_get_clean();
+
 		$shopify_data = json_decode($shopify_product, true);
 
 		if (!isset($shopify_data['product']) || !isset($shopify_data['product']['image']['src'])) {

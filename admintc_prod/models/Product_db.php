@@ -1,12 +1,12 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Product_db extends CI_Model {
-	
+
 	/**
 	 * Product_db Model
-	 * 
+	 *
 	 * Model responsible by all products interactions with database
-	 * 
+	 *
 	 */
 
 	public function __construct()
