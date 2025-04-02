@@ -1,12 +1,12 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class External extends CI_Controller {
-	
+
 	/**
 	 * Controller External
-	 * 
+	 *
 	 * Here we have all "not logged" public interactions
-	 * 
+	 *
 	 */
 
 	public function __construct()
@@ -36,19 +36,19 @@ class External extends CI_Controller {
 		if ($this->input->post('store')) {
 
 			$query = $this->External_db->check();
-		
+
 			if ($query)
 			{
 
 				foreach ($query->result() as $row)
 				{
 	    			$data = array(
-   						'username' => $row->username, 
-   						'firstName' => $row->firstName, 
-   						'lastName' => $row->lastName, 
-   						'store' => $this->input->post('store'), 
-   						'email' => $row->email, 
-   						'privLevel' => $row->privLevel, 
+   						'username' => $row->username,
+   						'firstName' => $row->firstName,
+   						'lastName' => $row->lastName,
+   						'store' => $this->input->post('store'),
+   						'email' => $row->email,
+   						'privLevel' => $row->privLevel,
    						'is_logged_in' => true
    					);
 				}
@@ -57,7 +57,7 @@ class External extends CI_Controller {
 				$message = 'Usuário '.$this->session->userdata('username').' acessou o sistema para a loja '.$this->session->userdata('store');
 
 				$this->External_db->externalLog('0',$message);
-				
+
 				redirect('pages');
 			}
 			else
@@ -83,7 +83,7 @@ class External extends CI_Controller {
 
 			$this->index('Por favor, selecionar a loja antes de proseguir!');
 		}
-		
+
 	}
 
 	public function verify_webhook($data,$hmac_header)
@@ -189,19 +189,19 @@ class External extends CI_Controller {
 					else {
 
 						$museu_qty = $this->check_qty($sku,"museu");
-	
+
 						if ($quantity <= $moema_qty + $jardins_qty + $museu_qty) {
-	
+
 							$data4['origin'] = "moema";
 							$data4['sku'] = $sku;
 							$data4['quantity'] = 0;
 							$this->External_db->update($data4);
-	
+
 							$data5['origin'] = "jardins";
 							$data5['sku'] = $sku;
 							$data5['quantity'] = 0;
 							$this->External_db->update($data5);
-	
+
 							$data6['origin'] = "museu";
 							$data6['sku'] = $sku;
 							$data6['quantity'] = $museu_qty - $quantity + $moema_qty + $jardins_qty;
@@ -210,17 +210,17 @@ class External extends CI_Controller {
 
 							if ($jardins_qty > 0) {
 								$this->External_db->tx_list_add($sku,"jardins","moema",$jardins_qty);
-							}	
-							
+							}
+
 							$this->External_db->tx_list_add($sku,"museu","moema",$txQty);
-	
+
 						}
 
 						else {
 							$message = 'Erro cadastro de venda do site. Quantidade não incompatível. Pedido: '.$order;
 							$this->External_db->externalLog('3',$message);
 						}
-						
+
 					}
 
 				}
@@ -256,6 +256,9 @@ class External extends CI_Controller {
 			$image = $arrayPostdata['image'];
 			$idShopify = $arrayPostdata['id'];
 			$picture = $image['src'];
+
+			// Log the picture URL for debugging
+			$this->External_db->externalLog('0', 'Picture URL from webhook: ' . $picture);
 
 			$this->External_db->add_picture($picture,$idShopify);
 
