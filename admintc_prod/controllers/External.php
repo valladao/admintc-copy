@@ -369,12 +369,12 @@ class External extends CI_Controller {
 	}
 
 	/**
-	 * Check if Shopify image is the same as database image for a given SKU
+	 * Get product images from database and Shopify
 	 *
-	 * @param string $sku The SKU to check
-	 * @return void
+	 * @param string $sku The SKU to look up
+	 * @return array|null Array with db_image_url, shopify_image_url, and idShopify, or null if not found
 	 */
-	public function check_image($sku)
+	private function _get_product_images($sku)
 	{
 		// Load Shopify_rest model
 		$this->load->model('Shopify_rest');
@@ -383,8 +383,7 @@ class External extends CI_Controller {
 		$db_product = $this->External_db->get_product_by_sku($sku);
 
 		if (!$db_product) {
-			echo "Product with SKU {$sku} not found in database.<br>";
-			return;
+			return null;
 		}
 
 		$db_image_url = $db_product->picture;
@@ -398,11 +397,36 @@ class External extends CI_Controller {
 		$shopify_data = json_decode($shopify_product, true);
 
 		if (!isset($shopify_data['product']) || !isset($shopify_data['product']['image']['src'])) {
-			echo "Product with SKU {$sku} not found in Shopify or has no image.<br>";
-			return;
+			return null;
 		}
 
 		$shopify_image_url = $shopify_data['product']['image']['src'];
+
+		return [
+			'db_image_url' => $db_image_url,
+			'shopify_image_url' => $shopify_image_url,
+			'idShopify' => $idShopify
+		];
+	}
+
+	/**
+	 * Check if Shopify image is the same as database image for a given SKU
+	 *
+	 * @param string $sku The SKU to check
+	 * @return void
+	 */
+	public function check_image($sku)
+	{
+		// Get product images
+		$images = $this->_get_product_images($sku);
+
+		if (!$images) {
+			echo "Product with SKU {$sku} not found in database or Shopify, or has no image.<br>";
+			return;
+		}
+
+		$db_image_url = $images['db_image_url'];
+		$shopify_image_url = $images['shopify_image_url'];
 
 		// Display both URLs
 		echo "<h2>Image URLs for SKU: {$sku}</h2>";
@@ -426,7 +450,63 @@ class External extends CI_Controller {
 			echo "<img src='{$shopify_image_url}' style='max-width: 300px; max-height: 300px;' />";
 			echo "</div>";
 			echo "</div>";
+
+			// Add button to update database with Shopify image
+			echo "<div style='margin-top: 20px;'>";
+			echo "<a href='/external/update_image/{$sku}' style='padding: 10px; background-color: #4CAF50; color: white; text-decoration: none; display: inline-block;'>Update Database with Shopify Image</a>";
+			echo "</div>";
 		}
+	}
+
+	/**
+	 * Update database image with Shopify image for a given SKU
+	 *
+	 * @param string $sku The SKU to update
+	 * @return void
+	 */
+	public function update_image($sku)
+	{
+		// Get product images
+		$images = $this->_get_product_images($sku);
+
+		if (!$images) {
+			echo "Product with SKU {$sku} not found in database or Shopify, or has no image.<br>";
+			return;
+		}
+
+		$db_image_url = $images['db_image_url'];
+		$shopify_image_url = $images['shopify_image_url'];
+		$idShopify = $images['idShopify'];
+
+		// Update database with Shopify image
+		$this->External_db->add_picture($shopify_image_url, $idShopify);
+
+		// Log the update
+		$message = "Updated image for SKU {$sku} from '{$db_image_url}' to '{$shopify_image_url}'";
+		$this->External_db->externalLog('0', $message);
+
+		// Display success message
+		echo "<h2>Image Updated for SKU: {$sku}</h2>";
+		echo "<p style='color: green;'>✓ The database has been updated with the Shopify image.</p>";
+		echo "<p><strong>Old Image URL:</strong> {$db_image_url}</p>";
+		echo "<p><strong>New Image URL:</strong> {$shopify_image_url}</p>";
+
+		// Show images side by side
+		echo "<div style='display: flex; margin-top: 20px;'>";
+		echo "<div style='margin-right: 20px;'>";
+		echo "<h3>Old Image:</h3>";
+		echo "<img src='{$db_image_url}' style='max-width: 300px; max-height: 300px;' />";
+		echo "</div>";
+		echo "<div>";
+		echo "<h3>New Image:</h3>";
+		echo "<img src='{$shopify_image_url}' style='max-width: 300px; max-height: 300px;' />";
+		echo "</div>";
+		echo "</div>";
+
+		// Add link to go back to check_image
+		echo "<div style='margin-top: 20px;'>";
+		echo "<a href='/external/check_image/{$sku}' style='padding: 10px; background-color: #2196F3; color: white; text-decoration: none; display: inline-block;'>Go Back to Check Image</a>";
+		echo "</div>";
 	}
 
 }
