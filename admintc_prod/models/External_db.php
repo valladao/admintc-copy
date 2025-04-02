@@ -242,26 +242,10 @@ class External_db extends CI_Model {
 	{
 		// Come from Stock Controller stock_in
 
-		// Log the picture URL before updating the database
-		$this->externalLog('0', 'Picture URL before DB update: ' . $picture);
-
 		$data['picture'] = $picture;
 
 		$this->db->where('idShopify', $idShopify);
 		$this->db->update('products', $data);
-
-		// Query the database to get the stored picture URL
-		$this->db->select('picture');
-		$this->db->where('idShopify', $idShopify);
-		$query = $this->db->get('products');
-
-		if ($query->num_rows() > 0) {
-			$row = $query->row();
-			$stored_picture = $row->picture;
-			$this->externalLog('0', 'Picture URL after DB update: ' . $stored_picture);
-		} else {
-			$this->externalLog('3', 'Failed to retrieve picture URL after DB update for idShopify: ' . $idShopify);
-		}
 	}
 
 	public function get_idInventory($sku)
