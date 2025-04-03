@@ -509,4 +509,106 @@ class External extends CI_Controller {
 		echo "</div>";
 	}
 
+	/**
+	 * Update all product images in the database with Shopify images
+	 *
+	 * @return void
+	 */
+	public function update_all_images()
+	{
+		// Set longer execution time for processing many products
+		ini_set('max_execution_time', '600');
+		set_time_limit(600);
+
+		// Get all SKUs
+		$skus = $this->External_db->get_skus();
+
+		// Initialize counters
+		$total = count($skus);
+		$updated = 0;
+		$skipped = 0;
+		$errors = 0;
+		$updated_skus = [];
+
+		// Start HTML output
+		echo "<h2>Updating All Product Images</h2>";
+		echo "<p>Total products to process: {$total}</p>";
+		echo "<div id='progress' style='margin: 20px 0;'></div>";
+
+		// Flush output to show progress
+		flush();
+
+		// Process each SKU
+		foreach ($skus as $index => $row) {
+			$sku = $row['sku'];
+			$current = $index + 1;
+
+			// Update progress
+			$percent = round(($current / $total) * 100);
+			echo "<script>document.getElementById('progress').innerHTML = 'Processing {$current} of {$total} ({$percent}%): SKU {$sku}';</script>";
+			flush();
+
+			// Get product images
+			$images = $this->_get_product_images($sku);
+
+			if (!$images) {
+				// Skip products with no images or not found in Shopify
+				$skipped++;
+				continue;
+			}
+
+			$db_image_url = $images['db_image_url'];
+			$shopify_image_url = $images['shopify_image_url'];
+			$idShopify = $images['idShopify'];
+
+			// Check if images match
+			if ($db_image_url !== $shopify_image_url) {
+				// Update database with Shopify image
+				$this->External_db->add_picture($shopify_image_url, $idShopify);
+
+				// Log the update
+				$message = "Batch update: Updated image for SKU {$sku} from '{$db_image_url}' to '{$shopify_image_url}'";
+				$this->External_db->externalLog('0', $message);
+
+				$updated++;
+				$updated_skus[] = $sku;
+			} else {
+				// Images already match
+				$skipped++;
+			}
+
+			// Delay to prevent Shopify API rate limiting (0.5 seconds as recommended by Shopify)
+			usleep(500000);
+		}
+
+		// Display summary
+		echo "<h3>Update Complete</h3>";
+		echo "<p><strong>Total processed:</strong> {$total}</p>";
+		echo "<p><strong>Updated:</strong> {$updated}</p>";
+		echo "<p><strong>Skipped (already matching or no image):</strong> {$skipped}</p>";
+		echo "<p><strong>Errors:</strong> {$errors}</p>";
+
+		// Log summary
+		$summary = "Batch image update completed. Total: {$total}, Updated: {$updated}, Skipped: {$skipped}, Errors: {$errors}";
+		$this->External_db->externalLog('0', $summary);
+
+		// Display list of updated SKUs
+		if ($updated > 0) {
+			echo "<h3>Updated SKUs:</h3>";
+			echo "<ul>";
+			foreach ($updated_skus as $sku) {
+				echo "<li>{$sku}</li>";
+			}
+			echo "</ul>";
+
+			// Log list of updated SKUs
+			$sku_list = implode(", ", $updated_skus);
+			$this->External_db->externalLog('0', "Batch image update - Updated SKUs: {$sku_list}");
+		}
+
+		// Add link to go back
+		echo "<div style='margin-top: 20px;'>";
+		echo "<a href='/external' style='padding: 10px; background-color: #2196F3; color: white; text-decoration: none; display: inline-block;'>Go Back</a>";
+		echo "</div>";
+	}
 }
