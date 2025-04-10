@@ -1,12 +1,12 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class External_db extends CI_Model {
-	
+
 	/**
 	 * External_db Model
-	 * 
+	 *
 	 * Here we have all DB access to External pages
-	 * 
+	 *
 	 */
 
 	public function check()
@@ -51,8 +51,8 @@ class External_db extends CI_Model {
 			'discount' => $discount ,
 			'totalPrice' => $totalPrice ,
 			'totalCost' => $totalCost ,
-			'username' => "shopify" , 
-			'fiscal?' => true 
+			'username' => "shopify" ,
+			'fiscal?' => true
 		);
 
 		if ($freight != 0) {
@@ -94,21 +94,21 @@ class External_db extends CI_Model {
 	{
 
 		$data = array(
-			'idSales' => $idSales, 
-			'value' => $value, 
-			'channel' => "Shopify", 
-			'note' => "Venda Shopify. Gateway: ".$gateway." - Ordem: ".$order 
+			'idSales' => $idSales,
+			'value' => $value,
+			'channel' => "Shopify",
+			'note' => "Venda Shopify. Gateway: ".$gateway." - Ordem: ".$order
 		);
 
 		switch ($gateway) {
 			case 'pag_seguro':
 				$data['payType'] = "Pagseguro";
 				break;
-			
+
 			case 'checkout_moip':
 				$data['payType'] = "MOIP";
 				break;
-			
+
 			default:
 				$data['payType'] = "Desconhecido";
 				break;
@@ -161,21 +161,21 @@ class External_db extends CI_Model {
 				$this->db->where('idStock', 2);
 				return $this->db->get('stockList');
 				break;
-			
+
 			case 'Morumbi':
 			case 'morumbi':
 				$this->db->where('sku', $sku);
 				$this->db->where('idStock', 4);
 				return $this->db->get('stockList');
 				break;
-			
+
 			case 'Museu':
 			case 'museu':
 				$this->db->where('sku', $sku);
 				$this->db->where('idStock', 3);
 				return $this->db->get('stockList');
 				break;
-			
+
 			default:
 				//If no stock, sum all stock
 				$this->db->where('sku', $sku);
@@ -199,17 +199,17 @@ class External_db extends CI_Model {
 			case 'jardins':
 				$idStock = 2;
 				break;
-			
+
 			case 'Morumbi':
 			case 'morumbi':
 				$idStock = 4;
 				break;
-			
+
 			case 'Museu':
 			case 'museu':
 				$idStock = 3;
 				break;
-			
+
 			default:
 				$idStock = 1;
 				break;
@@ -246,7 +246,6 @@ class External_db extends CI_Model {
 
 		$this->db->where('idShopify', $idShopify);
 		$this->db->update('products', $data);
-
 	}
 
 	public function get_idInventory($sku)
@@ -261,7 +260,7 @@ class External_db extends CI_Model {
 	{
 
 		$this->db->where('sku', $sku);
-		
+
 		$query = $this->db->get('stockErrors');
 
 		if($query->num_rows() > 0)
@@ -320,6 +319,28 @@ class External_db extends CI_Model {
 
 		return $this->db->query($statement)->result_array();
 
+	}
+
+	/**
+	 * Get product information by SKU
+	 *
+	 * @param string $sku The SKU to look up
+	 * @return object|null Product object or null if not found
+	 */
+	public function get_product_by_sku($sku)
+	{
+		// Join products and variants tables to get all product information
+		$this->db->select('products.*, variants.sku');
+		$this->db->from('products');
+		$this->db->join('variants', 'products.idProduct = variants.idProduct');
+		$this->db->where('variants.sku', $sku);
+		$query = $this->db->get();
+
+		if ($query->num_rows() > 0) {
+			return $query->row();
+		} else {
+			return null;
+		}
 	}
 
 }

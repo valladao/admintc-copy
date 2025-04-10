@@ -1,12 +1,12 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class External extends CI_Controller {
-	
+
 	/**
 	 * Controller External
-	 * 
+	 *
 	 * Here we have all "not logged" public interactions
-	 * 
+	 *
 	 */
 
 	public function __construct()
@@ -36,19 +36,19 @@ class External extends CI_Controller {
 		if ($this->input->post('store')) {
 
 			$query = $this->External_db->check();
-		
+
 			if ($query)
 			{
 
 				foreach ($query->result() as $row)
 				{
 	    			$data = array(
-   						'username' => $row->username, 
-   						'firstName' => $row->firstName, 
-   						'lastName' => $row->lastName, 
-   						'store' => $this->input->post('store'), 
-   						'email' => $row->email, 
-   						'privLevel' => $row->privLevel, 
+   						'username' => $row->username,
+   						'firstName' => $row->firstName,
+   						'lastName' => $row->lastName,
+   						'store' => $this->input->post('store'),
+   						'email' => $row->email,
+   						'privLevel' => $row->privLevel,
    						'is_logged_in' => true
    					);
 				}
@@ -57,7 +57,7 @@ class External extends CI_Controller {
 				$message = 'Usuário '.$this->session->userdata('username').' acessou o sistema para a loja '.$this->session->userdata('store');
 
 				$this->External_db->externalLog('0',$message);
-				
+
 				redirect('pages');
 			}
 			else
@@ -83,7 +83,7 @@ class External extends CI_Controller {
 
 			$this->index('Por favor, selecionar a loja antes de proseguir!');
 		}
-		
+
 	}
 
 	public function verify_webhook($data,$hmac_header)
@@ -189,19 +189,19 @@ class External extends CI_Controller {
 					else {
 
 						$museu_qty = $this->check_qty($sku,"museu");
-	
+
 						if ($quantity <= $moema_qty + $jardins_qty + $museu_qty) {
-	
+
 							$data4['origin'] = "moema";
 							$data4['sku'] = $sku;
 							$data4['quantity'] = 0;
 							$this->External_db->update($data4);
-	
+
 							$data5['origin'] = "jardins";
 							$data5['sku'] = $sku;
 							$data5['quantity'] = 0;
 							$this->External_db->update($data5);
-	
+
 							$data6['origin'] = "museu";
 							$data6['sku'] = $sku;
 							$data6['quantity'] = $museu_qty - $quantity + $moema_qty + $jardins_qty;
@@ -210,17 +210,17 @@ class External extends CI_Controller {
 
 							if ($jardins_qty > 0) {
 								$this->External_db->tx_list_add($sku,"jardins","moema",$jardins_qty);
-							}	
-							
+							}
+
 							$this->External_db->tx_list_add($sku,"museu","moema",$txQty);
-	
+
 						}
 
 						else {
 							$message = 'Erro cadastro de venda do site. Quantidade não incompatível. Pedido: '.$order;
 							$this->External_db->externalLog('3',$message);
 						}
-						
+
 					}
 
 				}
@@ -256,6 +256,9 @@ class External extends CI_Controller {
 			$image = $arrayPostdata['image'];
 			$idShopify = $arrayPostdata['id'];
 			$picture = $image['src'];
+
+			// Log the picture URL for debugging
+			$this->External_db->externalLog('0', 'Picture URL from webhook: ' . $picture);
 
 			$this->External_db->add_picture($picture,$idShopify);
 
@@ -365,4 +368,247 @@ class External extends CI_Controller {
 
 	}
 
+	/**
+	 * Get product images from database and Shopify
+	 *
+	 * @param string $sku The SKU to look up
+	 * @return array|null Array with db_image_url, shopify_image_url, and idShopify, or null if not found
+	 */
+	private function _get_product_images($sku)
+	{
+		// Load Shopify_rest model
+		$this->load->model('Shopify_rest');
+
+		// Get product information from database
+		$db_product = $this->External_db->get_product_by_sku($sku);
+
+		if (!$db_product) {
+			return null;
+		}
+
+		$db_image_url = $db_product->picture;
+		$idShopify = $db_product->idShopify;
+
+		// Get product information from Shopify using output buffering to capture the output
+		ob_start();
+		$this->Shopify_rest->get_product($idShopify);
+		$shopify_product = ob_get_clean();
+
+		$shopify_data = json_decode($shopify_product, true);
+
+		if (!isset($shopify_data['product']) || !isset($shopify_data['product']['image']['src'])) {
+			return null;
+		}
+
+		$shopify_image_url = $shopify_data['product']['image']['src'];
+
+		return [
+			'db_image_url' => $db_image_url,
+			'shopify_image_url' => $shopify_image_url,
+			'idShopify' => $idShopify
+		];
+	}
+
+	/**
+	 * Check if Shopify image is the same as database image for a given SKU
+	 *
+	 * @param string $sku The SKU to check
+	 * @return void
+	 */
+	public function check_image($sku)
+	{
+		// Get product images
+		$images = $this->_get_product_images($sku);
+
+		if (!$images) {
+			echo "Product with SKU {$sku} not found in database or Shopify, or has no image.<br>";
+			return;
+		}
+
+		$db_image_url = $images['db_image_url'];
+		$shopify_image_url = $images['shopify_image_url'];
+
+		// Display both URLs
+		echo "<h2>Image URLs for SKU: {$sku}</h2>";
+		echo "<p><strong>Database Image URL:</strong> {$db_image_url}</p>";
+		echo "<p><strong>Shopify Image URL:</strong> {$shopify_image_url}</p>";
+
+		// Compare URLs
+		if ($db_image_url === $shopify_image_url) {
+			echo "<p style='color: green;'>✓ The image URLs match.</p>";
+		} else {
+			echo "<p style='color: red;'>✗ The image URLs do not match.</p>";
+
+			// Show images side by side
+			echo "<div style='display: flex; margin-top: 20px;'>";
+			echo "<div style='margin-right: 20px;'>";
+			echo "<h3>Database Image:</h3>";
+			echo "<img src='{$db_image_url}' style='max-width: 300px; max-height: 300px;' />";
+			echo "</div>";
+			echo "<div>";
+			echo "<h3>Shopify Image:</h3>";
+			echo "<img src='{$shopify_image_url}' style='max-width: 300px; max-height: 300px;' />";
+			echo "</div>";
+			echo "</div>";
+
+			// Add button to update database with Shopify image
+			echo "<div style='margin-top: 20px;'>";
+			echo "<a href='/external/update_image/{$sku}' style='padding: 10px; background-color: #4CAF50; color: white; text-decoration: none; display: inline-block;'>Update Database with Shopify Image</a>";
+			echo "</div>";
+		}
+	}
+
+	/**
+	 * Update database image with Shopify image for a given SKU
+	 *
+	 * @param string $sku The SKU to update
+	 * @return void
+	 */
+	public function update_image($sku)
+	{
+		// Get product images
+		$images = $this->_get_product_images($sku);
+
+		if (!$images) {
+			echo "Product with SKU {$sku} not found in database or Shopify, or has no image.<br>";
+			return;
+		}
+
+		$db_image_url = $images['db_image_url'];
+		$shopify_image_url = $images['shopify_image_url'];
+		$idShopify = $images['idShopify'];
+
+		// Update database with Shopify image
+		$this->External_db->add_picture($shopify_image_url, $idShopify);
+
+		// Log the update
+		$message = "Updated image for SKU {$sku} from '{$db_image_url}' to '{$shopify_image_url}'";
+		$this->External_db->externalLog('0', $message);
+
+		// Display success message
+		echo "<h2>Image Updated for SKU: {$sku}</h2>";
+		echo "<p style='color: green;'>✓ The database has been updated with the Shopify image.</p>";
+		echo "<p><strong>Old Image URL:</strong> {$db_image_url}</p>";
+		echo "<p><strong>New Image URL:</strong> {$shopify_image_url}</p>";
+
+		// Show images side by side
+		echo "<div style='display: flex; margin-top: 20px;'>";
+		echo "<div style='margin-right: 20px;'>";
+		echo "<h3>Old Image:</h3>";
+		echo "<img src='{$db_image_url}' style='max-width: 300px; max-height: 300px;' />";
+		echo "</div>";
+		echo "<div>";
+		echo "<h3>New Image:</h3>";
+		echo "<img src='{$shopify_image_url}' style='max-width: 300px; max-height: 300px;' />";
+		echo "</div>";
+		echo "</div>";
+
+		// Add link to go back to check_image
+		echo "<div style='margin-top: 20px;'>";
+		echo "<a href='/external/check_image/{$sku}' style='padding: 10px; background-color: #2196F3; color: white; text-decoration: none; display: inline-block;'>Go Back to Check Image</a>";
+		echo "</div>";
+	}
+
+	/**
+	 * Update all product images in the database with Shopify images
+	 *
+	 * @return void
+	 */
+	public function update_all_images()
+	{
+		// Set longer execution time for processing many products
+		ini_set('max_execution_time', '600');
+		set_time_limit(600);
+
+		// Get all SKUs
+		$skus = $this->External_db->get_skus();
+
+		// Initialize counters
+		$total = count($skus);
+		$updated = 0;
+		$skipped = 0;
+		$errors = 0;
+		$updated_skus = [];
+
+		// Start HTML output
+		echo "<h2>Updating All Product Images</h2>";
+		echo "<p>Total products to process: {$total}</p>";
+		echo "<div id='progress' style='margin: 20px 0;'></div>";
+
+		// Flush output to show progress
+		flush();
+
+		// Process each SKU
+		foreach ($skus as $index => $row) {
+			$sku = $row['sku'];
+			$current = $index + 1;
+
+			// Update progress
+			$percent = round(($current / $total) * 100);
+			echo "<script>document.getElementById('progress').innerHTML = 'Processing {$current} of {$total} ({$percent}%): SKU {$sku}';</script>";
+			flush();
+
+			// Get product images
+			$images = $this->_get_product_images($sku);
+
+			if (!$images) {
+				// Skip products with no images or not found in Shopify
+				$skipped++;
+				continue;
+			}
+
+			$db_image_url = $images['db_image_url'];
+			$shopify_image_url = $images['shopify_image_url'];
+			$idShopify = $images['idShopify'];
+
+			// Check if images match
+			if ($db_image_url !== $shopify_image_url) {
+				// Update database with Shopify image
+				$this->External_db->add_picture($shopify_image_url, $idShopify);
+
+				// Log the update
+				$message = "Batch update: Updated image for SKU {$sku} from '{$db_image_url}' to '{$shopify_image_url}'";
+				$this->External_db->externalLog('0', $message);
+
+				$updated++;
+				$updated_skus[] = $sku;
+			} else {
+				// Images already match
+				$skipped++;
+			}
+
+			// Delay to prevent Shopify API rate limiting (0.5 seconds as recommended by Shopify)
+			usleep(500000);
+		}
+
+		// Display summary
+		echo "<h3>Update Complete</h3>";
+		echo "<p><strong>Total processed:</strong> {$total}</p>";
+		echo "<p><strong>Updated:</strong> {$updated}</p>";
+		echo "<p><strong>Skipped (already matching or no image):</strong> {$skipped}</p>";
+		echo "<p><strong>Errors:</strong> {$errors}</p>";
+
+		// Log summary
+		$summary = "Batch image update completed. Total: {$total}, Updated: {$updated}, Skipped: {$skipped}, Errors: {$errors}";
+		$this->External_db->externalLog('0', $summary);
+
+		// Display list of updated SKUs
+		if ($updated > 0) {
+			echo "<h3>Updated SKUs:</h3>";
+			echo "<ul>";
+			foreach ($updated_skus as $sku) {
+				echo "<li>{$sku}</li>";
+			}
+			echo "</ul>";
+
+			// Log list of updated SKUs
+			$sku_list = implode(", ", $updated_skus);
+			$this->External_db->externalLog('0', "Batch image update - Updated SKUs: {$sku_list}");
+		}
+
+		// Add link to go back
+		echo "<div style='margin-top: 20px;'>";
+		echo "<a href='/external' style='padding: 10px; background-color: #2196F3; color: white; text-decoration: none; display: inline-block;'>Go Back</a>";
+		echo "</div>";
+	}
 }
